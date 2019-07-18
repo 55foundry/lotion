@@ -26,6 +26,7 @@ interface ApplicationConfig extends BaseApplicationConfig {
   lotionHome?: string
   peers?: Array<string>
   discovery?: boolean
+  disableTendermint?: boolean
 }
 
 interface PortMap {
@@ -56,6 +57,7 @@ class LotionApp implements Application {
   private keyPath: string
   private initialState: object
   private logTendermint: boolean
+  private disableTendermint: boolean = false
   private discovery: boolean = true
   private home: string
   private lotionHome: string = join(homedir(), '.lotion', 'networks')
@@ -74,6 +76,7 @@ class LotionApp implements Application {
     this.genesisPath = config.genesisPath
     this.peers = config.peers
     this.discovery = config.discovery == null ? true : config.discovery
+    this.disableTendermint = config.disableTendermint == null ? false : config.disableTendermint
 
     this.setHome()
 
@@ -161,21 +164,8 @@ class LotionApp implements Application {
     )
     this.abciServer.listen(this.ports.abci)
 
-    console.log("Port", this.ports);
-    console.log("Home", this.home);
-    console.log("LotionHome: ", this.lotionHome);
-    console.log("GenesisPath", this.genesisPath);
-    console.log("LogTendermint", this.logTendermint);
-    console.log("KeyPath", this.keyPath);
-    console.log("Peers", this.peers);
-    console.log("Please start your Tendermint nodes with the following options")
-    console.log(`--rpc.laddr=tcp://0.0.0.0:${this.ports.rpc}`)
-    console.log(`--p2p.laddr=tcp://0.0.0.0:${this.ports.p2p}`)
-    console.log(`--proxy_app=tcp://0.0.0.0:${this.ports.abci}`)
-    console.log(`--home=${this.home}`)
 
-    // start tendermint process
-    this.tendermintProcess = {
+    let tm = {
       ports: this.ports,
       home: this.home,
       logTendermint: this.logTendermint,
@@ -184,8 +174,31 @@ class LotionApp implements Application {
       peers: this.peers
     }
 
+    if (this.disableTendermint) {
+        // do not start tendermint
+        this.tendermintProcess = tm
+
+        console.log("Please start your Tendermint nodes with the following options")
+        console.log(`--rpc.laddr=tcp://0.0.0.0:${this.ports.rpc}`)
+        console.log(`--p2p.laddr=tcp://0.0.0.0:${this.ports.p2p}`)
+        console.log(`--proxy_app=tcp://0.0.0.0:${this.ports.abci}`)
+        console.log(`--home=${this.home}`)
+    } else {
+        // start tendermint process
+        this.tendermintProcess = await createTendermintProcess(tm)
+    }
+
     this.setGenesis()
     this.setGCI()
+
+    console.log("Ports", this.ports)
+    console.log("Home", this.home)
+    console.log("LotionHome: ", this.lotionHome)
+    console.log("GenesisPath", this.genesisPath)
+    console.log("LogTendermint", this.logTendermint)
+    console.log("KeyPath", this.keyPath)
+    console.log("Peers", this.peers)
+    console.log("GCI", this.GCI)
 
     // start discovery server
     this.discoveryServer = createDiscoveryServer({
