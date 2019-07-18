@@ -23,6 +23,7 @@ interface ApplicationConfig extends BaseApplicationConfig {
   logTendermint?: boolean
   keyPath?: string
   genesisPath?: string
+  lotionHome?: string
   peers?: Array<string>
   discovery?: boolean
 }
@@ -75,6 +76,9 @@ class LotionApp implements Application {
     this.discovery = config.discovery == null ? true : config.discovery
 
     this.setHome()
+
+    this.home = config.lotionHome
+    this.lotionHome = this.home
 
     Object.assign(this, this.application)
   }
@@ -157,15 +161,28 @@ class LotionApp implements Application {
     )
     this.abciServer.listen(this.ports.abci)
 
+    console.log("Port", this.ports);
+    console.log("Home", this.home);
+    console.log("LotionHome: ", this.lotionHome);
+    console.log("GenesisPath", this.genesisPath);
+    console.log("LogTendermint", this.logTendermint);
+    console.log("KeyPath", this.keyPath);
+    console.log("Peers", this.peers);
+    console.log("Please start your Tendermint nodes with the following options")
+    console.log(`--rpc.laddr=tcp://0.0.0.0:${this.ports.rpc}`)
+    console.log(`--p2p.laddr=tcp://0.0.0.0:${this.ports.p2p}`)
+    console.log(`--proxy_app=tcp://0.0.0.0:${this.ports.abci}`)
+    console.log(`--home=${this.home}`)
+
     // start tendermint process
-    this.tendermintProcess = await createTendermintProcess({
+    this.tendermintProcess = {
       ports: this.ports,
       home: this.home,
       logTendermint: this.logTendermint,
       keyPath: this.keyPath,
       genesisPath: this.genesisPath,
       peers: this.peers
-    })
+    }
 
     this.setGenesis()
     this.setGCI()
