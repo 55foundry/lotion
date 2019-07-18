@@ -23,6 +23,7 @@ interface ApplicationConfig extends BaseApplicationConfig {
   logTendermint?: boolean
   keyPath?: string
   genesisPath?: string
+  lotionHome?: string
   peers?: Array<string>
   discovery?: boolean
 }
