@@ -81,6 +81,12 @@ class LotionApp implements Application {
     this.setHome()
 
     if (this.disableTendermint) {
+        console.log("Running in TM disabled mode")
+
+        if (this.genesisPath == null || this.lotionHome == null) {
+            throw "genesisPath OR lotionHome is null, both fields needed"
+        }
+
         this.home = config.lotionHome
         this.lotionHome = this.home
     }
@@ -115,6 +121,7 @@ class LotionApp implements Application {
     if (!this.genesisPath) {
       this.genesisPath = join(this.home, 'config', 'genesis.json')
     }
+
     let genesisJSON = fs.readFileSync(this.genesisPath, 'utf8')
     let parsedGenesis = JSON.parse(genesisJSON)
     this.genesis = DJSON.stringify(parsedGenesis)
