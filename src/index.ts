@@ -80,8 +80,10 @@ class LotionApp implements Application {
 
     this.setHome()
 
-    this.home = config.lotionHome
-    this.lotionHome = this.home
+    if (this.disableTendermint) {
+        this.home = config.lotionHome
+        this.lotionHome = this.home
+    }
 
     Object.assign(this, this.application)
   }
