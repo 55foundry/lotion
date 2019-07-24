@@ -38,7 +38,7 @@ export default async function createTendermintProcess({
   let opts: any = {
     rpc: { laddr: 'tcp://0.0.0.0:' + ports.rpc },
     p2p: { laddr: 'tcp://0.0.0.0:' + ports.p2p },
-    proxyApp: 'tcp://0.0.0.0:' + ports.abci
+    proxyApp: 'tcp://127.0.0.1:' + ports.abci
   }
 
   /**
