@@ -8,7 +8,7 @@ let createServer = require('abci')
 let merk = require('merk')
 
 export interface ABCIServer {
-  listen(port)
+  listen(port, host)
 }
 
 export default function createABCIServer(

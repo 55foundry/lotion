@@ -171,7 +171,7 @@ class LotionApp implements Application {
       this.initialState,
       this.home
     )
-    this.abciServer.listen(this.ports.abci)
+    this.abciServer.listen(this.ports.abci, '0.0.0.0')
 
 
     let tm = {
